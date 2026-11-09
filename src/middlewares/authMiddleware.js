@@ -1,0 +1,40 @@
+const jwt = require('jsonwebtoken')
+
+const estaLogado = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+
+    if(!token) return res.status(403).json({erro: "Você precisa estar logado"})
+
+    try {
+        const usuarioDecodificado = jwt.verify(token, process.env.JWT_SECRET)
+        req.usuario = usuarioDecodificado
+        next()
+    } catch(erro) {
+        console.error(erro)
+        return res.status(401).json({erro: "Token inválido ou expirado"})
+    }
+}
+
+const isAdmin = (req, res, next) => {
+    if(req.usuario.cargo !== 'admin') {
+        return res.status(403).json({erro: "Acesso negado! Apenas admin!"})
+    }
+    next()
+}
+
+const isFuncionario = (req, res, next) => {
+    if(req.usuario.cargo !== 'funcionario') {
+        return res.status(403).json({erro: "Acesso negado. Apenas Funcionarios"})
+    }
+    next()
+}
+
+const isHyperAdmin = (req, res, next) => {
+    if(req.usuario.cargo !== 'hyper_admin') {
+        return res.status(403).json({erro: "Acesso negado!"})
+    }
+    next()
+}
+
+module.exports = {estaLogado, isAdmin, isFuncionario, isHyperAdmin}
