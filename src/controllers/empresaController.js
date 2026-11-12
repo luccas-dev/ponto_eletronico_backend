@@ -5,8 +5,10 @@ const cadastrarEmpresa = async (req, res) => {
     try {
         const {nome_fantasia, cnpj, nome_admin, sobrenome_admin, senha, cpf, email, telefone} = req.body
         const senhaHash = await bcrypt.hash(senha, 10)
+        const dataVencimento = new Date()
+        dataVencimento.setDate(dataVencimento.getDate() + 7)
 
-        const [empresa] = await pool.query('INSERT INTO empresas (nome_fantasia, cnpj, email, telefone) VALUES (?, ?, ?, ?, ?, ?, ?)', [nome_fantasia, cnpj, email, telefone])
+        const [empresa] = await pool.query('INSERT INTO empresas (nome_fantasia, cnpj, email, telefone, data_vencimento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nome_fantasia, cnpj, email, telefone, dataVencimento])
         
         const empresa_id = empresa.insertId
 

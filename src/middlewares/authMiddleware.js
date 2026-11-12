@@ -1,3 +1,4 @@
+const pool = require('../config/db')
 const jwt = require('jsonwebtoken')
 
 const estaLogado = (req, res, next) => {
@@ -37,4 +38,18 @@ const isHyperAdmin = (req, res, next) => {
     next()
 }
 
-module.exports = {estaLogado, isAdmin, isFuncionario, isHyperAdmin}
+const checkAssignature = async (req, res, next) => {
+    const empresaId = req.usuario.empresa_id
+    const [empresa] = await pool.query("SELECT status_assinatura FROM empresas WHERE id_empresa = ?", [empresaId])
+
+    if(empresa.status_assinatura === 'bloqueada') {
+        return res.status(403).json({erro: "Acesso bloqueado por falta de pagamento."})
+    }
+
+    if(empresa.status_assinatura === 'inadimplente') {
+        res.status(200).json({erro: "Pagamento está em atraso, regularize para não sofrer bloqueios."})
+    }
+    next()
+}
+
+module.exports = {estaLogado, isAdmin, isFuncionario, isHyperAdmin, checkAssignature}
