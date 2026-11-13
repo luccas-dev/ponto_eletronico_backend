@@ -2,8 +2,8 @@ const express = require('express')
 const router = express.Router()
 const {estaLogado} = require('../middlewares/authMiddleware')
 
-const { registrarPonto } = require('../controllers/registroPontoController')
+const { registrarPonto, checkAssignature } = require('../controllers/registroPontoController')
 
-router.post('/registro', estaLogado, registrarPonto)
+router.post('/registro', estaLogado, checkAssignature, registrarPonto)
 
 module.exports = router
